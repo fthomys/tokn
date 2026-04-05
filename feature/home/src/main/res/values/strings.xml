@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SimpleOTP</string>
+    <string name="settings">Settings</string>
+    <string name="add_account">Add account</string>
+    <string name="no_accounts_title">No accounts yet</string>
+    <string name="no_accounts_subtitle">Tap + to add your first 2FA account</string>
+    <string name="code_copied">Code copied — clears in 30 s</string>
+    <string name="delete">Delete</string>
+    <string name="add_scan_qr">Scan QR code</string>
+    <string name="add_from_image">From image</string>
+    <string name="add_manually">Enter manually</string>
+    <string name="delete_confirm_title">Delete account?</string>
+    <string name="delete_confirm_message">This account will be permanently removed.</string>
+    <string name="cancel">Cancel</string>
+</resources>

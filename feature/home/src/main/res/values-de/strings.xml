@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SimpleOTP</string>
+    <string name="settings">Einstellungen</string>
+    <string name="add_account">Konto hinzufügen</string>
+    <string name="no_accounts_title">Noch keine Konten</string>
+    <string name="no_accounts_subtitle">Tippe auf + um dein erstes 2FA-Konto hinzuzufügen</string>
+    <string name="code_copied">Code kopiert – wird in 30 s gelöscht</string>
+    <string name="delete">Löschen</string>
+    <string name="add_scan_qr">QR-Code scannen</string>
+    <string name="add_from_image">Aus Galerie</string>
+    <string name="add_manually">Manuell eingeben</string>
+    <string name="delete_confirm_title">Konto löschen?</string>
+    <string name="delete_confirm_message">Dieses Konto wird dauerhaft entfernt.</string>
+    <string name="cancel">Abbrechen</string>
+</resources>

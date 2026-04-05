@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Einstellungen</string>
+    <string name="appearance">Darstellung</string>
+    <string name="theme">Design</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="theme_system">System</string>
+    <string name="security">Sicherheit</string>
+    <string name="biometric_unlock">Biometrische Entsperrung</string>
+    <string name="auto_lock">Automatisch sperren nach</string>
+    <string name="lock_immediately">Sofort</string>
+    <string name="lock_30s">30 s</string>
+    <string name="lock_1m">1 Min</string>
+    <string name="lock_5m">5 Min</string>
+    <string name="data">Daten</string>
+    <string name="backup_restore">Sicherung &amp; Wiederherstellung</string>
+    <string name="open">Öffnen</string>
+    <string name="screenshot_protection">Screenshot-Schutz</string>
+    <string name="screenshot_protection_desc">App-Inhalte im Aufgaben-Manager ausblenden und Screenshots blockieren</string>
+    <string name="screenshot_warning_title">Screenshot-Schutz deaktivieren?</string>
+    <string name="screenshot_warning_body">Das Erlauben von Screenshots kann OTP-Codes anderen Apps oder Bildschirmaufnahmen zugänglich machen. Nur deaktivieren, wenn du die Risiken kennst.</string>
+    <string name="enable_anyway">Trotzdem aktivieren</string>
+    <string name="cancel">Abbrechen</string>
+</resources>

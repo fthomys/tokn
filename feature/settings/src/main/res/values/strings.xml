@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="appearance">Appearance</string>
+    <string name="theme">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+    <string name="security">Security</string>
+    <string name="biometric_unlock">Biometric unlock</string>
+    <string name="auto_lock">Auto-lock after</string>
+    <string name="lock_immediately">Immediately</string>
+    <string name="lock_30s">30 s</string>
+    <string name="lock_1m">1 min</string>
+    <string name="lock_5m">5 min</string>
+    <string name="data">Data</string>
+    <string name="backup_restore">Backup &amp; Restore</string>
+    <string name="open">Open</string>
+    <string name="screenshot_protection">Screenshot protection</string>
+    <string name="screenshot_protection_desc">Hide app contents in recents and block screenshots</string>
+    <string name="screenshot_warning_title">Disable screenshot protection?</string>
+    <string name="screenshot_warning_body">Allowing screenshots may expose your OTP codes to other apps or screen recordings. Only disable this if you understand the risk.</string>
+    <string name="enable_anyway">Enable anyway</string>
+    <string name="cancel">Cancel</string>
+</resources>
