@@ -5,29 +5,48 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import kotlinx.coroutines.launch
+import me.diamondforge.tokn.R
 import me.diamondforge.tokn.add.AddAccountViewModel
 import me.diamondforge.tokn.add.FromImageScreen
 import me.diamondforge.tokn.add.ManualEntryScreen
@@ -43,10 +62,18 @@ import me.diamondforge.tokn.settings.SettingsScreen
 fun AppNavHost(
     isLocked: Boolean?,
     onUnlock: () -> Unit,
+    onUnlockWithPassword: suspend (String) -> Boolean,
+    hasVaultPassword: Boolean,
+    biometricEnabled: Boolean,
 ) {
-    if (isLocked == null) return  // auth check not done yet — show nothing
+    if (isLocked == null) return
     if (isLocked) {
-        LockScreen(onUnlock = onUnlock)
+        LockScreen(
+            onUnlock = onUnlock,
+            onUnlockWithPassword = onUnlockWithPassword,
+            hasVaultPassword = hasVaultPassword,
+            biometricEnabled = biometricEnabled,
+        )
         return
     }
 
@@ -145,13 +172,27 @@ fun AppNavHost(
 }
 
 @Composable
-private fun LockScreen(onUnlock: () -> Unit) {
+private fun LockScreen(
+    onUnlock: () -> Unit,
+    onUnlockWithPassword: suspend (String) -> Boolean,
+    hasVaultPassword: Boolean,
+    biometricEnabled: Boolean,
+) {
+    val scope = rememberCoroutineScope()
+    var showPasswordField by remember { mutableStateOf(!biometricEnabled) }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var wrongPassword by remember { mutableStateOf(false) }
+    var isVerifying by remember { mutableStateOf(false) }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -178,13 +219,77 @@ private fun LockScreen(onUnlock: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "App is locked",
+                text = stringResource(R.string.vault_locked),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(32.dp))
-            Button(onClick = onUnlock) {
-                Text("Unlock")
+
+            if (showPasswordField) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        wrongPassword = false
+                    },
+                    label = { Text(stringResource(R.string.password)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = wrongPassword,
+                    supportingText = if (wrongPassword) {
+                        { Text(stringResource(R.string.wrong_password)) }
+                    } else null,
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = {
+                        scope.launch {
+                            isVerifying = true
+                            val ok = onUnlockWithPassword(password)
+                            isVerifying = false
+                            if (!ok) {
+                                wrongPassword = true
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = password.isNotEmpty() && !isVerifying,
+                ) {
+                    Text(stringResource(R.string.unlock))
+                }
+                if (biometricEnabled) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = {
+                        showPasswordField = false
+                        password = ""
+                        wrongPassword = false
+                    }) {
+                        Text(stringResource(R.string.use_biometrics))
+                    }
+                }
+            } else {
+                Button(
+                    onClick = onUnlock,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.unlock))
+                }
+                if (hasVaultPassword) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = { showPasswordField = true }) {
+                        Text(stringResource(R.string.use_password))
+                    }
+                }
             }
         }
     }

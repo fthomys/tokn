@@ -38,6 +38,10 @@ class UserPreferencesRepository @Inject constructor(
         prefs[Keys.SCREENSHOTS_ENABLED] ?: false
     }
 
+    val encryptionEnabled: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[Keys.ENCRYPTION_ENABLED] ?: false
+    }
+
     suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { it[Keys.THEME_MODE] = mode.name }
     }
@@ -54,11 +58,16 @@ class UserPreferencesRepository @Inject constructor(
         dataStore.edit { it[Keys.SCREENSHOTS_ENABLED] = enabled }
     }
 
+    suspend fun setEncryptionEnabled(enabled: Boolean) {
+        dataStore.edit { it[Keys.ENCRYPTION_ENABLED] = enabled }
+    }
+
     private object Keys {
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val AUTO_LOCK_TIMEOUT = intPreferencesKey("auto_lock_timeout")
         val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
         val SCREENSHOTS_ENABLED = booleanPreferencesKey("screenshots_enabled")
+        val ENCRYPTION_ENABLED = booleanPreferencesKey("encryption_enabled")
     }
 }
 

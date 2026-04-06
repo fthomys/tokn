@@ -49,6 +49,7 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.coroutines.android)
+    implementation(libs.bouncycastle)
 
     debugImplementation(libs.compose.ui.tooling)
 }

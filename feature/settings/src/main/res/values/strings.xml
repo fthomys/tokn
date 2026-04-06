@@ -19,6 +19,20 @@
 
     <!-- Security -->
     <string name="security">Security</string>
+    <string name="section_vault">Vault</string>
+    <string name="encrypt_vault">Encrypt vault</string>
+    <string name="encrypt_vault_desc">Protect your accounts with encryption and unlock with biometrics or password</string>
+    <string name="vault_setup_title">Set up vault password</string>
+    <string name="vault_setup_desc">Choose a password to unlock the vault when biometrics are unavailable.</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="password_too_short">Password must be at least 8 characters</string>
+    <string name="passwords_dont_match">Passwords do not match</string>
+    <string name="wrong_password">Incorrect password</string>
+    <string name="enable_encryption">Enable</string>
+    <string name="disable_encryption_title">Disable vault encryption</string>
+    <string name="disable_encryption_desc">Enter your current vault password to disable encryption.</string>
+    <string name="disable_encryption_confirm">Disable</string>
     <string name="section_authentication">Authentication</string>
     <string name="section_privacy">Privacy</string>
     <string name="biometric_unlock">Biometric unlock</string>

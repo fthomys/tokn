@@ -3,30 +3,41 @@ package me.diamondforge.tokn.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import me.diamondforge.tokn.security.VaultPasswordManager
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val preferences: UserPreferencesRepository,
+    private val vaultPasswordManager: VaultPasswordManager,
 ) : ViewModel() {
+
+    private val _passwordError = MutableStateFlow(false)
 
     val uiState: StateFlow<SettingsUiState> = combine(
         preferences.themeMode,
         preferences.autoLockTimeoutSeconds,
         preferences.biometricEnabled,
         preferences.screenshotsEnabled,
-    ) { theme, timeout, biometric, screenshots ->
+        preferences.encryptionEnabled,
+    ) { theme, timeout, biometric, screenshots, encryption ->
         SettingsUiState(
             themeMode = theme,
             autoLockTimeoutSeconds = timeout,
             biometricEnabled = biometric,
             screenshotsEnabled = screenshots,
+            encryptionEnabled = encryption,
         )
+    }.combine(_passwordError) { state, error ->
+        state.copy(passwordVerificationFailed = error)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun setThemeMode(mode: ThemeMode) {
@@ -44,6 +55,26 @@ class SettingsViewModel @Inject constructor(
     fun setScreenshotsEnabled(enabled: Boolean) {
         viewModelScope.launch { preferences.setScreenshotsEnabled(enabled) }
     }
+
+    fun setupEncryption(password: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            vaultPasswordManager.setup(password)
+            preferences.setEncryptionEnabled(true)
+        }
+    }
+
+    fun disableEncryption(password: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (vaultPasswordManager.verify(password)) {
+                vaultPasswordManager.clear()
+                preferences.setEncryptionEnabled(false)
+            } else {
+                _passwordError.update { true }
+            }
+        }
+    }
+
+    fun clearPasswordError() = _passwordError.update { false }
 }
 
 data class SettingsUiState(
@@ -51,4 +82,6 @@ data class SettingsUiState(
     val autoLockTimeoutSeconds: Int = 60,
     val biometricEnabled: Boolean = true,
     val screenshotsEnabled: Boolean = false,
+    val encryptionEnabled: Boolean = false,
+    val passwordVerificationFailed: Boolean = false,
 )

@@ -3,13 +3,16 @@ package me.diamondforge.tokn.backup
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -27,6 +30,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -63,11 +68,17 @@ fun BackupScreen(
     var importPassword by rememberSaveable { mutableStateOf("") }
     var exportPasswordVisible by remember { mutableStateOf(false) }
     var importPasswordVisible by remember { mutableStateOf(false) }
+    var exportUnencrypted by remember { mutableStateOf(false) }
+    var showUnencryptedWarning by remember { mutableStateOf(false) }
     var pendingExportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingAegisUri by remember { mutableStateOf<Uri?>(null) }
     var importResultCount by remember { mutableStateOf<Int?>(null) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var pendingError by remember { mutableStateOf<BackupError?>(null) }
+    var showSourcePicker by remember { mutableStateOf(false) }
+    var selectedSource by remember { mutableStateOf("aegis") }
+    var aegisPassword by rememberSaveable { mutableStateOf("") }
+    var aegisPasswordVisible by remember { mutableStateOf(false) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -83,7 +94,8 @@ fun BackupScreen(
 
     LaunchedEffect(pendingExportUri) {
         pendingExportUri?.let { uri ->
-            viewModel.exportBackup(uri, exportPassword)
+            if (exportUnencrypted) viewModel.exportUnencryptedBackup(uri)
+            else viewModel.exportBackup(uri, exportPassword)
             pendingExportUri = null
         }
     }
@@ -120,7 +132,7 @@ fun BackupScreen(
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
-            errorMessage = it
+            pendingError = it
             viewModel.clearMessages()
         }
     }
@@ -146,14 +158,143 @@ fun BackupScreen(
         )
     }
 
-    // Error dialog
-    errorMessage?.let { msg ->
+    // Source picker dialog
+    if (showSourcePicker) {
         AlertDialog(
-            onDismissRequest = { errorMessage = null },
-            title = { Text(stringResource(R.string.import_error_title)) },
-            text = { Text(msg) },
+            onDismissRequest = { showSourcePicker = false },
+            title = { Text(stringResource(R.string.other_import_select_app)) },
+            text = {
+                Column {
+                    // Aegis
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedSource = "aegis" }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selectedSource == "aegis", onClick = { selectedSource = "aegis" })
+                        Spacer(Modifier.width(12.dp))
+                        Column {
+                            Text("Aegis Authenticator", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                stringResource(R.string.aegis_import_note),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            },
             confirmButton = {
-                TextButton(onClick = { errorMessage = null }) {
+                TextButton(onClick = {
+                    showSourcePicker = false
+                    viewModel.suppressLock()
+                    aegisLauncher.launch(arrayOf("application/json", "*/*"))
+                }) {
+                    Text(stringResource(R.string.other_import_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSourcePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    // Aegis encrypted backup password dialog
+    if (uiState.pendingEncryptedAegisUri != null) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.cancelEncryptedImport()
+                aegisPassword = ""
+            },
+            title = { Text(stringResource(R.string.aegis_encrypted_title)) },
+            text = {
+                OutlinedTextField(
+                    value = aegisPassword,
+                    onValueChange = { aegisPassword = it },
+                    label = { Text(stringResource(R.string.backup_password)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = if (aegisPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { aegisPasswordVisible = !aegisPasswordVisible }) {
+                            Icon(
+                                if (aegisPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                contentDescription = null,
+                            )
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done,
+                    ),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.importAegisWithPassword(aegisPassword)
+                        aegisPassword = ""
+                        aegisPasswordVisible = false
+                    },
+                    enabled = aegisPassword.isNotEmpty(),
+                ) {
+                    Text(stringResource(R.string.other_import_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    viewModel.cancelEncryptedImport()
+                    aegisPassword = ""
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    // Unencrypted export warning dialog
+    if (showUnencryptedWarning) {
+        AlertDialog(
+            onDismissRequest = { showUnencryptedWarning = false },
+            title = { Text(stringResource(R.string.export_unencrypted_warning_title)) },
+            text = { Text(stringResource(R.string.export_unencrypted_warning_body)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    exportUnencrypted = true
+                    exportPassword = ""
+                    showUnencryptedWarning = false
+                }) {
+                    Text(
+                        text = stringResource(R.string.export_unencrypted_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnencryptedWarning = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+
+    // Error dialog
+    pendingError?.let { err ->
+        AlertDialog(
+            onDismissRequest = { pendingError = null },
+            title = { Text(stringResource(err.titleRes)) },
+            text = {
+                Text(
+                    if (err.messageArg != null) stringResource(err.messageRes, err.messageArg)
+                    else stringResource(err.messageRes)
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { pendingError = null }) {
                     Text(stringResource(R.string.ok))
                 }
             },
@@ -199,35 +340,61 @@ fun BackupScreen(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                OutlinedTextField(
-                    value = exportPassword,
-                    onValueChange = { exportPassword = it },
-                    label = { Text(stringResource(R.string.backup_password)) },
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    visualTransformation = if (exportPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { exportPasswordVisible = !exportPasswordVisible }) {
-                            Icon(
-                                if (exportPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null,
-                            )
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done,
-                    ),
-                )
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.export_unencrypted),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Switch(
+                        checked = exportUnencrypted,
+                        onCheckedChange = { on ->
+                            if (on) showUnencryptedWarning = true
+                            else exportUnencrypted = false
+                        },
+                    )
+                }
+                if (exportUnencrypted) {
+                    Text(
+                        text = stringResource(R.string.export_unencrypted_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = exportPassword,
+                        onValueChange = { exportPassword = it },
+                        label = { Text(stringResource(R.string.backup_password)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = if (exportPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { exportPasswordVisible = !exportPasswordVisible }) {
+                                Icon(
+                                    if (exportPasswordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done,
+                        ),
+                    )
+                }
                 Button(
                     onClick = {
                         viewModel.suppressLock()
                         val ts = java.time.LocalDateTime.now()
                             .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
-                        exportLauncher.launch("tokn_backup_$ts.kv")
+                        val filename = if (exportUnencrypted) "tokn_backup_$ts.kv" else "tokn_backup_$ts.enc.kv"
+                        exportLauncher.launch(filename)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = exportPassword.length >= 8,
+                    enabled = exportUnencrypted || exportPassword.length >= 8,
                 ) {
                     Text(stringResource(R.string.export_backup))
                 }
@@ -268,10 +435,9 @@ fun BackupScreen(
                 OutlinedButton(
                     onClick = {
                         viewModel.suppressLock()
-                        importLauncher.launch(arrayOf("application/octet-stream", "*/*"))
+                        importLauncher.launch(arrayOf("application/octet-stream", "application/json", "*/*"))
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = importPassword.isNotEmpty(),
                 ) {
                     Text(stringResource(R.string.import_backup))
                 }
@@ -281,22 +447,19 @@ fun BackupScreen(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = stringResource(R.string.aegis_section),
+                    text = stringResource(R.string.other_import_section),
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Text(
-                    text = stringResource(R.string.aegis_description),
+                    text = stringResource(R.string.other_import_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 OutlinedButton(
-                    onClick = {
-                        viewModel.suppressLock()
-                        aegisLauncher.launch(arrayOf("application/json", "*/*"))
-                    },
+                    onClick = { showSourcePicker = true },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(stringResource(R.string.aegis_import))
+                    Text(stringResource(R.string.other_import_select_app))
                 }
 
                 Spacer(Modifier.height(16.dp))
