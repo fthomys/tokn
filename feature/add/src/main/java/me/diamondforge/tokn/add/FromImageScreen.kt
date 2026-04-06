@@ -49,6 +49,7 @@ fun FromImageScreen(
     onScanned: (String) -> Unit,
     onManualEntry: () -> Unit,
     onBack: () -> Unit,
+    suppressLock: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -107,6 +108,7 @@ fun FromImageScreen(
     }
 
     LaunchedEffect(Unit) {
+        suppressLock()
         launcher.launch("image/*")
     }
 
@@ -151,7 +153,7 @@ fun FromImageScreen(
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Spacer(Modifier.height(24.dp))
-                        Button(onClick = { launcher.launch("image/*") }) {
+                        Button(onClick = { suppressLock(); launcher.launch("image/*") }) {
                             Text(stringResource(R.string.retry))
                         }
                         Spacer(Modifier.height(8.dp))

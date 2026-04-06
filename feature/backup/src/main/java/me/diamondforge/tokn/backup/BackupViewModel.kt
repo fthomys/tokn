@@ -9,6 +9,7 @@ import me.diamondforge.tokn.domain.model.OtpAlgorithm
 import me.diamondforge.tokn.domain.model.OtpType
 import me.diamondforge.tokn.domain.usecase.AddAccountUseCase
 import me.diamondforge.tokn.domain.usecase.GetAccountsUseCase
+import me.diamondforge.tokn.security.LockManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,7 @@ class BackupViewModel @Inject constructor(
     private val getAccountsUseCase: GetAccountsUseCase,
     private val addAccountUseCase: AddAccountUseCase,
     private val encryptedBackupManager: EncryptedBackupManager,
+    private val lockManager: LockManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BackupUiState())
@@ -91,10 +93,17 @@ class BackupViewModel @Inject constructor(
             }.onSuccess { count ->
                 _uiState.update { it.copy(isLoading = false, importedCount = count) }
             }.onFailure { e ->
-                _uiState.update { it.copy(isLoading = false, error = e.message ?: "Failed to import Aegis backup") }
+                val msg = when {
+                    e.message?.contains("cannot be converted to JSONObject") == true ->
+                        "This Aegis backup is encrypted. Please export an unencrypted backup from Aegis (Settings → Backups → uncheck encryption)."
+                    else -> e.message ?: "Failed to import Aegis backup"
+                }
+                _uiState.update { it.copy(isLoading = false, error = msg) }
             }
         }
     }
+
+    fun suppressLock() = lockManager.suppressNextForeground()
 
     fun clearMessages() = _uiState.update { it.copy(error = null, exportSuccess = false, importedCount = null) }
 

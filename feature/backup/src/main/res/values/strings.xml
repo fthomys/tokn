@@ -13,4 +13,9 @@
     <string name="aegis_section">Import from Aegis</string>
     <string name="aegis_description">Import accounts from an unencrypted Aegis JSON export.</string>
     <string name="aegis_import">Select Aegis backup (JSON)</string>
+    <string name="import_result_title">Import complete</string>
+    <string name="import_result_body">%d account(s) were imported successfully.</string>
+    <string name="import_result_empty">No accounts found in the backup file.</string>
+    <string name="ok">OK</string>
+    <string name="import_error_title">Import failed</string>
 </resources>

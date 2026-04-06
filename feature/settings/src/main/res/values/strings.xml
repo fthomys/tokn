@@ -1,25 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="settings_title">Settings</string>
+
+    <!-- Main menu descriptions -->
+    <string name="appearance_desc">Theme and display options</string>
+    <string name="security_desc">Biometric unlock, auto-lock, privacy</string>
+    <string name="backup_desc">Export and import your accounts</string>
+
+    <!-- Appearance -->
     <string name="appearance">Appearance</string>
     <string name="theme">Theme</string>
+    <string name="language">Language</string>
+    <string name="language_desc">Choose app language</string>
+    <string name="language_system_default">System default</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
+
+    <!-- Security -->
     <string name="security">Security</string>
+    <string name="section_authentication">Authentication</string>
+    <string name="section_privacy">Privacy</string>
     <string name="biometric_unlock">Biometric unlock</string>
+    <string name="biometric_unlock_desc">Use fingerprint or face to unlock the app</string>
     <string name="auto_lock">Auto-lock after</string>
     <string name="lock_immediately">Immediately</string>
     <string name="lock_30s">30 s</string>
     <string name="lock_1m">1 min</string>
     <string name="lock_5m">5 min</string>
-    <string name="data">Data</string>
-    <string name="backup_restore">Backup &amp; Restore</string>
-    <string name="open">Open</string>
     <string name="screenshot_protection">Screenshot protection</string>
     <string name="screenshot_protection_desc">Hide app contents in recents and block screenshots</string>
     <string name="screenshot_warning_title">Disable screenshot protection?</string>
     <string name="screenshot_warning_body">Allowing screenshots may expose your OTP codes to other apps or screen recordings. Only disable this if you understand the risk.</string>
     <string name="enable_anyway">Enable anyway</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Data -->
+    <string name="backup_restore">Backup &amp; Restore</string>
+    <string name="open">Open</string>
+    <string name="data">Data</string>
 </resources>

@@ -29,6 +29,7 @@ android {
 
 dependencies {
     implementation(project(":core:domain"))
+    implementation(project(":core:security"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

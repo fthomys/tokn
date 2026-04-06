@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +31,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +58,7 @@ fun BackupScreen(
     viewModel: BackupViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = remember { SnackbarHostState() }  // kept for export success
     var exportPassword by rememberSaveable { mutableStateOf("") }
     var importPassword by rememberSaveable { mutableStateOf("") }
     var exportPasswordVisible by remember { mutableStateOf(false) }
@@ -62,6 +66,8 @@ fun BackupScreen(
     var pendingExportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
     var pendingAegisUri by remember { mutableStateOf<Uri?>(null) }
+    var importResultCount by remember { mutableStateOf<Int?>(null) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -97,7 +103,6 @@ fun BackupScreen(
     }
 
     val exportSuccessMsg = stringResource(R.string.export_success)
-    val importSuccessMsg = stringResource(R.string.import_success)
 
     LaunchedEffect(uiState.exportSuccess) {
         if (uiState.exportSuccess) {
@@ -108,16 +113,51 @@ fun BackupScreen(
 
     LaunchedEffect(uiState.importedCount) {
         uiState.importedCount?.let { count ->
-            snackbarHostState.showSnackbar(importSuccessMsg.format(count))
+            importResultCount = count
             viewModel.clearMessages()
         }
     }
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let {
-            snackbarHostState.showSnackbar(it)
+            errorMessage = it
             viewModel.clearMessages()
         }
+    }
+
+    // Import result dialog
+    importResultCount?.let { count ->
+        AlertDialog(
+            onDismissRequest = { importResultCount = null },
+            title = { Text(stringResource(R.string.import_result_title)) },
+            text = {
+                Text(
+                    if (count == 0)
+                        stringResource(R.string.import_result_empty)
+                    else
+                        stringResource(R.string.import_result_body, count),
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { importResultCount = null }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+        )
+    }
+
+    // Error dialog
+    errorMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { errorMessage = null },
+            title = { Text(stringResource(R.string.import_error_title)) },
+            text = { Text(msg) },
+            confirmButton = {
+                TextButton(onClick = { errorMessage = null }) {
+                    Text(stringResource(R.string.ok))
+                }
+            },
+        )
     }
 
     Scaffold(
@@ -146,6 +186,7 @@ fun BackupScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -180,6 +221,7 @@ fun BackupScreen(
                 )
                 Button(
                     onClick = {
+                        viewModel.suppressLock()
                         val ts = java.time.LocalDateTime.now()
                             .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
                         exportLauncher.launch("tokn_backup_$ts.kv")
@@ -224,7 +266,10 @@ fun BackupScreen(
                     ),
                 )
                 OutlinedButton(
-                    onClick = { importLauncher.launch(arrayOf("application/octet-stream", "*/*")) },
+                    onClick = {
+                        viewModel.suppressLock()
+                        importLauncher.launch(arrayOf("application/octet-stream", "*/*"))
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = importPassword.isNotEmpty(),
                 ) {
@@ -245,11 +290,16 @@ fun BackupScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 OutlinedButton(
-                    onClick = { aegisLauncher.launch(arrayOf("application/json", "*/*")) },
+                    onClick = {
+                        viewModel.suppressLock()
+                        aegisLauncher.launch(arrayOf("application/json", "*/*"))
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(R.string.aegis_import))
                 }
+
+                Spacer(Modifier.height(16.dp))
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import me.diamondforge.tokn.domain.model.OtpAccount
 import me.diamondforge.tokn.domain.model.OtpAlgorithm
 import me.diamondforge.tokn.domain.model.OtpType
+import me.diamondforge.tokn.security.LockManager
 import me.diamondforge.tokn.domain.usecase.AddAccountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +19,13 @@ import javax.inject.Inject
 @HiltViewModel
 class AddAccountViewModel @Inject constructor(
     private val addAccountUseCase: AddAccountUseCase,
+    private val lockManager: LockManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddAccountUiState())
     val uiState: StateFlow<AddAccountUiState> = _uiState.asStateFlow()
+
+    fun suppressLock() = lockManager.suppressNextForeground()
 
     fun onQrScanned(rawValue: String) {
         runCatching { parseOtpAuthUri(rawValue) }

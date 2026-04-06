@@ -1,4 +1,4 @@
-package me.diamondforge.tokn
+package me.diamondforge.tokn.security
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +13,12 @@ class LockManager @Inject constructor() {
     val isLocked: StateFlow<Boolean?> = _isLocked.asStateFlow()
 
     @Volatile private var backgroundedAt: Long = -1L
+    @Volatile private var skipNextForeground: Boolean = false
+
+    /** Call before launching any system UI (file picker, share sheet, etc.) */
+    fun suppressNextForeground() {
+        skipNextForeground = true
+    }
 
     fun onAppBackground() {
         backgroundedAt = System.currentTimeMillis()
@@ -20,6 +26,11 @@ class LockManager @Inject constructor() {
 
     fun onAppForeground(timeoutSeconds: Int) {
         if (backgroundedAt < 0) return
+        if (skipNextForeground) {
+            skipNextForeground = false
+            backgroundedAt = -1L
+            return
+        }
         val elapsed = (System.currentTimeMillis() - backgroundedAt) / 1000
         if (timeoutSeconds == 0 || elapsed >= timeoutSeconds) {
             _isLocked.value = true

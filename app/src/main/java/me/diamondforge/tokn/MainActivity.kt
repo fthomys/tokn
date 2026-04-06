@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import me.diamondforge.tokn.navigation.AppNavHost
 import me.diamondforge.tokn.security.BiometricHelper
+import me.diamondforge.tokn.security.LockManager
 import me.diamondforge.tokn.settings.ThemeMode
 import me.diamondforge.tokn.settings.UserPreferencesRepository
 import me.diamondforge.tokn.ui.theme.SimpleOTPTheme

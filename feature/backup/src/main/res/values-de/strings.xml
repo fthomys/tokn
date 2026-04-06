@@ -10,4 +10,12 @@
     <string name="import_backup">Backup-Datei auswählen</string>
     <string name="export_success">Backup erfolgreich exportiert</string>
     <string name="import_success">%d Konto(s) importiert</string>
+    <string name="aegis_section">Aus Aegis importieren</string>
+    <string name="aegis_description">Konten aus einem unverschlüsselten Aegis-JSON-Export importieren.</string>
+    <string name="aegis_import">Aegis-Backup auswählen (JSON)</string>
+    <string name="import_result_title">Import abgeschlossen</string>
+    <string name="import_result_body">%d Konto(s) erfolgreich importiert.</string>
+    <string name="import_result_empty">Keine Konten in der Backup-Datei gefunden.</string>
+    <string name="ok">OK</string>
+    <string name="import_error_title">Import fehlgeschlagen</string>
 </resources>

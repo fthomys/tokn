@@ -13,4 +13,18 @@
     <string name="delete_confirm_title">Konto löschen?</string>
     <string name="delete_confirm_message">Dieses Konto wird dauerhaft entfernt.</string>
     <string name="cancel">Abbrechen</string>
+    <string name="search">Suchen</string>
+    <string name="search_placeholder">Konten durchsuchen…</string>
+    <string name="no_results_title">Keine Ergebnisse</string>
+    <string name="no_results_subtitle">Keine Konten gefunden</string>
+    <string name="edit_account_title">Konto bearbeiten</string>
+    <string name="edit_issuer">Aussteller</string>
+    <string name="edit_account_name">Kontoname</string>
+    <string name="edit_secret">Geheimschlüssel</string>
+    <string name="edit_type">Typ</string>
+    <string name="edit_algorithm">Algorithmus</string>
+    <string name="edit_digits">Stellen</string>
+    <string name="edit_period">Intervall</string>
+    <string name="edit_advanced">Erweitert</string>
+    <string name="edit_save">Änderungen speichern</string>
 </resources>

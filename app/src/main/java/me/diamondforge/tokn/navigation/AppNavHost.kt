@@ -35,6 +35,8 @@ import me.diamondforge.tokn.add.QrScannerScreen
 import me.diamondforge.tokn.backup.BackupScreen
 import me.diamondforge.tokn.home.EditAccountScreen
 import me.diamondforge.tokn.home.HomeScreen
+import me.diamondforge.tokn.settings.AppearanceScreen
+import me.diamondforge.tokn.settings.SecurityScreen
 import me.diamondforge.tokn.settings.SettingsScreen
 
 @Composable
@@ -104,6 +106,7 @@ fun AppNavHost(
                     },
                     onManualEntry = { navController.navigate(Screen.ManualEntry.route) },
                     onBack = { navController.popBackStack(Screen.Home.route, inclusive = false) },
+                    suppressLock = viewModel::suppressLock,
                 )
             }
             composable(Screen.ManualEntry.route) { entry ->
@@ -124,8 +127,16 @@ fun AppNavHost(
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
+                onAppearance = { navController.navigate(Screen.Appearance.route) },
+                onSecurity = { navController.navigate(Screen.SecuritySettings.route) },
                 onBackup = { navController.navigate(Screen.Backup.route) },
             )
+        }
+        composable(Screen.Appearance.route) {
+            AppearanceScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Screen.SecuritySettings.route) {
+            SecurityScreen(onBack = { navController.popBackStack() })
         }
         composable(Screen.Backup.route) {
             BackupScreen(onBack = { navController.popBackStack() })
@@ -186,6 +197,8 @@ sealed class Screen(val route: String) {
     data object FromImage : Screen("from_image")
     data object ManualEntry : Screen("manual_entry")
     data object Settings : Screen("settings")
+    data object Appearance : Screen("appearance")
+    data object SecuritySettings : Screen("security_settings")
     data object Backup : Screen("backup")
     data object EditAccount : Screen("edit/{accountId}") {
         fun createRoute(accountId: Long) = "edit/$accountId"
