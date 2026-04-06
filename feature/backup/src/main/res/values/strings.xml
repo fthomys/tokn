@@ -10,4 +10,7 @@
     <string name="import_backup">Select backup file</string>
     <string name="export_success">Backup exported successfully</string>
     <string name="import_success">Imported %d account(s)</string>
+    <string name="aegis_section">Import from Aegis</string>
+    <string name="aegis_description">Import accounts from an unencrypted Aegis JSON export.</string>
+    <string name="aegis_import">Select Aegis backup (JSON)</string>
 </resources>

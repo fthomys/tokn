@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SimpleOTP"
+rootProject.name = "Tokn"
 include(":app")
 include(":core:domain")
 include(":core:data")

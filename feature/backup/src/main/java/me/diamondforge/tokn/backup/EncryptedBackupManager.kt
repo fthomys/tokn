@@ -1,0 +1,39 @@
+package me.diamondforge.tokn.backup
+
+import android.content.Context
+import android.net.Uri
+import me.diamondforge.tokn.security.EncryptedPayload
+import me.diamondforge.tokn.security.EncryptionManager
+import org.json.JSONObject
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class EncryptedBackupManager @Inject constructor(
+    private val encryptionManager: EncryptionManager,
+) {
+    fun exportToUri(context: Context, uri: Uri, plainJson: String, password: String) {
+        val payload = encryptionManager.encrypt(plainJson.toByteArray(Charsets.UTF_8), password)
+        val wrapper = JSONObject().apply {
+            put("ciphertext", payload.ciphertext)
+            put("iv", payload.iv)
+            put("salt", payload.salt)
+        }
+        context.contentResolver.openOutputStream(uri)?.use { stream ->
+            stream.write(wrapper.toString().toByteArray(Charsets.UTF_8))
+        } ?: error("Cannot open output stream")
+    }
+
+    fun importFromUri(context: Context, uri: Uri, password: String): String {
+        val raw = context.contentResolver.openInputStream(uri)?.use { stream ->
+            stream.readBytes().toString(Charsets.UTF_8)
+        } ?: error("Cannot open input stream")
+        val wrapper = JSONObject(raw)
+        val payload = EncryptedPayload(
+            ciphertext = wrapper.getString("ciphertext"),
+            iv = wrapper.getString("iv"),
+            salt = wrapper.getString("salt"),
+        )
+        return encryptionManager.decrypt(payload, password).toString(Charsets.UTF_8)
+    }
+}

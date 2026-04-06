@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#312E81"/>
+      <stop offset="100%" stop-color="#1E1B4B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="75%" cy="50%" r="40%">
+      <stop offset="0%" stop-color="#4338CA" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#4338CA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="500" fill="url(#bg)"/>
+  <rect width="1024" height="500" fill="url(#glow)"/>
+
+  <!-- Left: app name + tagline -->
+  <text
+    x="88" y="222"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="116" font-weight="700" fill="#FFFFFF"
+    letter-spacing="-4">Tokn</text>
+
+  <text
+    x="92" y="278"
+    font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+    font-size="26" font-weight="400" fill="#A5B4FC"
+    letter-spacing="0.5">Your 2FA codes. Offline.</text>
+
+  <!-- Right: key icon -->
+  <g transform="translate(618, 112) scale(11.5)" opacity="0.95">
+    <path
+      d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"
+      fill="none" stroke="#FFFFFF" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="16.5" cy="7.5" r="0.5" fill="#FFFFFF"/>
+  </g>
+</svg>
