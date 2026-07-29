@@ -6,16 +6,24 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
@@ -29,16 +37,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -53,6 +67,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import me.diamondforge.tokn.R
 import me.diamondforge.tokn.add.AddAccountViewModel
@@ -347,6 +362,7 @@ fun AppNavHost(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LockScreen(
     onUnlock: () -> Unit,
@@ -355,116 +371,149 @@ private fun LockScreen(
     biometricEnabled: Boolean,
 ) {
     val scope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
     var showPasswordField by remember { mutableStateOf(!biometricEnabled) }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var wrongPassword by remember { mutableStateOf(false) }
     var isVerifying by remember { mutableStateOf(false) }
 
+    val submit: () -> Unit = submit@{
+        if (password.isEmpty() || isVerifying) return@submit
+        scope.launch {
+            isVerifying = true
+            val ok = onUnlockWithPassword(password)
+            isVerifying = false
+            if (!ok) {
+                wrongPassword = true
+            }
+        }
+    }
+
+    LaunchedEffect(showPasswordField) {
+        if (showPasswordField) {
+            focusRequester.requestFocus()
+            keyboard?.show()
+        }
+    }
+
+    val imeVisible = WindowInsets.isImeVisible
+    LaunchedEffect(imeVisible) {
+        if (!imeVisible) return@LaunchedEffect
+        val target = snapshotFlow { scrollState.maxValue }.first { it > 0 }
+        scrollState.animateScrollTo(target)
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .safeDrawingPadding()
-                .padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .safeDrawingPadding(),
         ) {
-            Surface(
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.size(88.dp),
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .heightIn(min = maxHeight)
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = null,
-                        modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(28.dp))
-            Text(
-                text = "Tokn",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.vault_locked),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(modifier = Modifier.height(32.dp))
-
-            if (showPasswordField) {
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {
-                        password = it
-                        wrongPassword = false
-                    },
-                    label = { Text(stringResource(R.string.password)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = wrongPassword,
-                    supportingText = if (wrongPassword) {
-                        { Text(stringResource(R.string.wrong_password)) }
-                    } else null,
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null,
-                            )
-                        }
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = {
-                        scope.launch {
-                            isVerifying = true
-                            val ok = onUnlockWithPassword(password)
-                            isVerifying = false
-                            if (!ok) {
-                                wrongPassword = true
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = password.isNotEmpty() && !isVerifying,
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.size(88.dp),
                 ) {
-                    Text(stringResource(R.string.unlock))
-                }
-                if (biometricEnabled) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = {
-                        showPasswordField = false
-                        password = ""
-                        wrongPassword = false
-                    }) {
-                        Text(stringResource(R.string.use_biometrics))
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                            modifier = Modifier.size(40.dp),
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
                     }
                 }
-            } else {
-                Button(
-                    onClick = onUnlock,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(stringResource(R.string.unlock))
-                }
-                if (hasVaultPassword) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = { showPasswordField = true }) {
-                        Text(stringResource(R.string.use_password))
+                Spacer(modifier = Modifier.height(28.dp))
+                Text(
+                    text = "Tokn",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.vault_locked),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                if (showPasswordField) {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            wrongPassword = false
+                        },
+                        label = { Text(stringResource(R.string.password)) },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        isError = wrongPassword,
+                        supportingText = if (wrongPassword) {
+                            { Text(stringResource(R.string.wrong_password)) }
+                        } else null,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                    contentDescription = null,
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done,
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { submit() }),
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = submit,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = password.isNotEmpty() && !isVerifying,
+                    ) {
+                        Text(stringResource(R.string.unlock))
+                    }
+                    if (biometricEnabled) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(onClick = {
+                            showPasswordField = false
+                            password = ""
+                            wrongPassword = false
+                        }) {
+                            Text(stringResource(R.string.use_biometrics))
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = onUnlock,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(stringResource(R.string.unlock))
+                    }
+                    if (hasVaultPassword) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(onClick = { showPasswordField = true }) {
+                            Text(stringResource(R.string.use_password))
+                        }
                     }
                 }
             }
