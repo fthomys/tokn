@@ -1,0 +1,3 @@
+* New: manage groups with colors and custom ordering, plus a bulk action to add multiple accounts to a group at once (Settings > Groups).
+* Improved: groups are now included in backups and sync, and the home screen respects your custom group order.
+* Fixed: onboarding and login screens no longer overlap the status bar and other system bars.
