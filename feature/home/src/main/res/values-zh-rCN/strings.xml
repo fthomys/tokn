@@ -11,8 +11,8 @@
     <string name="add_from_image">从图片导入</string>
     <string name="add_manually">手动输入</string>
     <string name="delete_confirm_title">删除帐户？</string>
-    <string name="delete_confirm_message">This account will be moved to the Recycle Bin.</string>
-    <string name="undo">Undo</string>
+    <string name="delete_confirm_message">此帐户将被移动到回收站。</string>
+    <string name="undo">撤销</string>
     <string name="cancel">取消</string>
     <string name="search">搜索</string>
     <string name="search_placeholder">搜索账户…</string>
@@ -32,18 +32,18 @@
     <string name="edit_group">组 (可选)</string>
     <string name="group_all">All</string>
     <string name="edit">编辑</string>
-    <string name="export_qr">Export as QR code</string>
+    <string name="export_qr">导出为二维码</string>
     <string name="export_secret_warning">This QR code contains your secret in plain text. Only scan it on a device you trust.</string>
-    <string name="export_copy_uri">Copy otpauth URI</string>
-    <string name="export_copied">Copied to clipboard</string>
+    <string name="export_copy_uri">复制 otpauth URI</string>
+    <string name="export_copied">已复制到剪贴板</string>
     <string name="select_all">全选</string>
-    <string name="add_to_group">Add to group</string>
-    <string name="add_to_group_title">Add to group</string>
-    <string name="add_to_group_new_group_label">New group</string>
-    <string name="add_to_group_confirm">Add</string>
-    <string name="add_to_group_empty">No groups yet. Create one below.</string>
+    <string name="add_to_group">添加到组</string>
+    <string name="add_to_group_title">添加到组</string>
+    <string name="add_to_group_new_group_label">新建组</string>
+    <string name="add_to_group_confirm">添加</string>
+    <string name="add_to_group_empty">暂时没有组。请在下方创建一个组。</string>
     <plurals name="add_to_group_snackbar">
-        <item quantity="other">Added %d accounts to group</item>
+        <item quantity="other">已将 %d 个账户添加到组</item>
     </plurals>
     <string name="cd_exit_selection">退出选择</string>
     <string name="cd_exit_search">关闭搜索</string>
@@ -69,14 +69,14 @@
         <item quantity="other">是否删除 %d 帐户？</item>
     </plurals>
     <plurals name="delete_count_confirm_message">
-        <item quantity="other">These %d accounts will be moved to the Recycle Bin.</item>
+        <item quantity="other">这 %d 个帐户将被移动到回收站。</item>
     </plurals>
     <plurals name="delete_count_immediate_message">
-        <item quantity="other">These %d accounts will be permanently removed and cannot be restored.</item>
+        <item quantity="other">这 %d 个账户将被永久删除，无法恢复。</item>
     </plurals>
-    <string name="delete_immediately">Delete immediately</string>
+    <string name="delete_immediately">立即删除</string>
     <plurals name="trash_snackbar_deleted">
-        <item quantity="other">%d accounts moved to Recycle Bin</item>
+        <item quantity="other">%d 个帐户已移动到回收站</item>
     </plurals>
     <string name="edit_error_secret_required">请输入密钥</string>
     <string name="edit_error_invalid_secret">密钥无效：只允许字母A-Z和数字 2-7</string>
