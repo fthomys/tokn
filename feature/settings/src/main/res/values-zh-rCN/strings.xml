@@ -182,9 +182,9 @@
     <string name="auto_backup_msg_unchanged">Already up to date</string>
     <string name="auto_backup_msg_failed">Backup failed</string>
     <string name="auto_backup_msg_no_password">Set a backup password first</string>
-    <string name="recycle_bin_title">Recycle Bin</string>
-    <string name="recycle_bin_desc">Restore or permanently remove deleted accounts</string>
-    <string name="recycle_bin_setting_title">Recycle Bin</string>
+    <string name="recycle_bin_title">回收站</string>
+    <string name="recycle_bin_desc">恢复或永久删除已删除的账户</string>
+    <string name="recycle_bin_setting_title">回收站</string>
     <string name="recycle_bin_setting_desc">Deleted accounts are kept for 30 days. When off, deletes are permanent.</string>
     <string name="recycle_bin_disable_title">Disable Recycle Bin?</string>
     <string name="disable">Disable</string>
