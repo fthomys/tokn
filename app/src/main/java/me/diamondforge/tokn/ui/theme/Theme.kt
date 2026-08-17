@@ -20,7 +20,7 @@ import me.diamondforge.tokn.data.preferences.ThemeMode
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SimpleOTPTheme(
+fun ToknTheme(
     themeMode: ThemeMode,
     dynamicColor: Boolean,
     content: @Composable () -> Unit,

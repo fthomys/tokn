@@ -14,10 +14,10 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import me.diamondforge.tokn.backup.auto.AutoBackupManager
+import me.diamondforge.tokn.core.backup.auto.AutoBackupManager
 
 @HiltAndroidApp
-class SimpleOTPApplication : Application(), SingletonImageLoader.Factory {
+class ToknApplication : Application(), SingletonImageLoader.Factory {
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 

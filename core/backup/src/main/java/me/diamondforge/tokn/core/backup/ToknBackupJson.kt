@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup
+package me.diamondforge.tokn.core.backup
 
 import android.util.Base64
 import me.diamondforge.tokn.domain.model.Group

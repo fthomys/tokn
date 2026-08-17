@@ -1,12 +1,12 @@
-package me.diamondforge.tokn.backup.auto
+package me.diamondforge.tokn.core.backup.auto
 
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
-import me.diamondforge.tokn.backup.EncryptedBackupManager
-import me.diamondforge.tokn.backup.serializeAccountsToJson
+import me.diamondforge.tokn.core.backup.EncryptedBackupManager
+import me.diamondforge.tokn.core.backup.serializeAccountsToJson
 import me.diamondforge.tokn.data.preferences.FakePreferencesDataStore
 import me.diamondforge.tokn.domain.model.OtpAccount
 import me.diamondforge.tokn.domain.testing.FakeAccountRepository

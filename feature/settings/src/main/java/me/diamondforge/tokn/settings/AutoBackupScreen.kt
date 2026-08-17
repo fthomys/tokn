@@ -57,7 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import me.diamondforge.tokn.backup.auto.AutoBackupStrategy
+import me.diamondforge.tokn.core.backup.auto.AutoBackupStrategy
 import java.text.DateFormat
 import java.util.Date
 

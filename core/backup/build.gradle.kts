@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "me.diamondforge.tokn.backup"
+    namespace = "me.diamondforge.tokn.core.backup"
     compileSdk = 37
 
     defaultConfig {

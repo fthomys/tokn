@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup
+package me.diamondforge.tokn.core.backup
 
 import android.content.Context
 import android.net.Uri

@@ -1,5 +1,7 @@
 package me.diamondforge.tokn.backup
 
+import me.diamondforge.tokn.core.backup.EncryptedBackupManager
+import me.diamondforge.tokn.core.backup.serializeAccountsToJson
 import me.diamondforge.tokn.domain.model.OtpAccount
 import me.diamondforge.tokn.importer.ImportOutcome
 import me.diamondforge.tokn.security.EncryptionManager

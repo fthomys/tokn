@@ -40,7 +40,7 @@ import me.diamondforge.tokn.security.vault.VaultManager
 import me.diamondforge.tokn.security.vault.VaultSession
 import me.diamondforge.tokn.security.vault.VaultState
 import me.diamondforge.tokn.ui.RootOfTrustUpgradeDialog
-import me.diamondforge.tokn.ui.theme.SimpleOTPTheme
+import me.diamondforge.tokn.ui.theme.ToknTheme
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity() {
             val upgradeDue by upgradeNeeded.collectAsStateWithLifecycle()
             var upgradeDismissed by rememberSaveable { mutableStateOf(false) }
 
-            SimpleOTPTheme(themeMode = themeMode, dynamicColor = dynamicColorEnabled) {
+            ToknTheme(themeMode = themeMode, dynamicColor = dynamicColorEnabled) {
                 val reminderViewModel: PasswordReminderViewModel = hiltViewModel()
                 val reminderDue by reminderViewModel.shouldPrompt.collectAsStateWithLifecycle()
                 val nextReminderDays by reminderViewModel.nextReminderDays.collectAsStateWithLifecycle()

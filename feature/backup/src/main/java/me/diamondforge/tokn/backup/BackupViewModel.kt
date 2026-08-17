@@ -17,6 +17,10 @@ import kotlinx.coroutines.withContext
 import me.diamondforge.tokn.audit.AuditEventType
 import me.diamondforge.tokn.audit.AuditLogger
 import me.diamondforge.tokn.audit.NoopAuditLogger
+import me.diamondforge.tokn.core.backup.EncryptedBackupManager
+import me.diamondforge.tokn.core.backup.serializeAccountsAsOtpAuthUriList
+import me.diamondforge.tokn.core.backup.serializeAccountsAsPlainText
+import me.diamondforge.tokn.core.backup.serializeAccountsToJson
 import me.diamondforge.tokn.data.security.VaultAuthGate
 import me.diamondforge.tokn.data.security.VaultAuthMode
 import me.diamondforge.tokn.domain.model.OtpAccount

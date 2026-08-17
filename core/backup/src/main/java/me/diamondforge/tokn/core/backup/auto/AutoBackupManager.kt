@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup.auto
+package me.diamondforge.tokn.core.backup.auto
 
 import android.net.Uri
 import kotlinx.coroutines.CoroutineScope
@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.onEach
 import me.diamondforge.tokn.audit.AuditEventType
 import me.diamondforge.tokn.audit.AuditLogger
 import me.diamondforge.tokn.audit.NoopAuditLogger
-import me.diamondforge.tokn.backup.EncryptedBackupManager
-import me.diamondforge.tokn.backup.serializeAccountsToJson
+import me.diamondforge.tokn.core.backup.EncryptedBackupManager
+import me.diamondforge.tokn.core.backup.serializeAccountsToJson
 import me.diamondforge.tokn.domain.usecase.GetAccountsUseCase
 import me.diamondforge.tokn.security.KeystoreManager
 import me.diamondforge.tokn.security.vault.VaultSession

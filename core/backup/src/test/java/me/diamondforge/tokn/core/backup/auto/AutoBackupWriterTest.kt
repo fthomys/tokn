@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup.auto
+package me.diamondforge.tokn.core.backup.auto
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

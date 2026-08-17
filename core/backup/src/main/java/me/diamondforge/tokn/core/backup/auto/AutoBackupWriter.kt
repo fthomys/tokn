@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup.auto
+package me.diamondforge.tokn.core.backup.auto
 
 import android.content.Context
 import android.content.Intent

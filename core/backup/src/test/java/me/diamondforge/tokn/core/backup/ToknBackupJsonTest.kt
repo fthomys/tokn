@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup
+package me.diamondforge.tokn.core.backup
 
 import me.diamondforge.tokn.domain.model.Group
 import me.diamondforge.tokn.domain.model.OtpAccount

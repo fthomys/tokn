@@ -1,4 +1,4 @@
-package me.diamondforge.tokn.backup.auto
+package me.diamondforge.tokn.core.backup.auto
 
 sealed interface AutoBackupResult {
     data object Success : AutoBackupResult

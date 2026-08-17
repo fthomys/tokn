@@ -10,10 +10,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import me.diamondforge.tokn.backup.auto.AutoBackupManager
-import me.diamondforge.tokn.backup.auto.AutoBackupPreferencesRepository
-import me.diamondforge.tokn.backup.auto.AutoBackupResult
-import me.diamondforge.tokn.backup.auto.AutoBackupStrategy
+import me.diamondforge.tokn.core.backup.auto.AutoBackupManager
+import me.diamondforge.tokn.core.backup.auto.AutoBackupPreferencesRepository
+import me.diamondforge.tokn.core.backup.auto.AutoBackupResult
+import me.diamondforge.tokn.core.backup.auto.AutoBackupStrategy
 import javax.inject.Inject
 
 @HiltViewModel
